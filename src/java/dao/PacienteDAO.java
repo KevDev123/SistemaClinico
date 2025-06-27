@@ -5,6 +5,8 @@
  */
 package dao;
 
+import interfaces.IConexion;
+import interfaces.IGenericoDAO;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -24,12 +26,17 @@ import model.Paciente;
  */
 public class PacienteDAO implements  IGenericoDAO<Paciente> {
     
+    private final IConexion conexion;
+
+    public PacienteDAO(IConexion conexion) {
+        this.conexion = conexion;
+    }
     
      @Override
     public void guardar(Paciente p) {
         
         try{
-        Connection con = ConexionBD.conectar();
+        Connection con = conexion.getConexion();
         PreparedStatement pst = null;        
         pst = con.prepareStatement("INSERT INTO pacientes(nombre_paciente, apellido_paciente, fecha_nacimiento, genero, direccion, telefono_paciente, detalles) VALUES (?,?,?,?,?,?,?)");
                 pst.setString(1, p.getNombre());
@@ -53,7 +60,7 @@ public class PacienteDAO implements  IGenericoDAO<Paciente> {
     @Override
     public void actualizar(Paciente p) {
        try{
-        Connection con = ConexionBD.conectar();
+        Connection con = conexion.getConexion();
         PreparedStatement pst = null;        
          pst = con.prepareStatement("UPDATE pacientes SET nombre_paciente=?, apellido_paciente=?, fecha_nacimiento=?, genero=?, direccion=?, telefono_paciente=?, detalles=? WHERE id_paciente=?");
                 pst.setString(1, p.getNombre());
@@ -78,7 +85,7 @@ public class PacienteDAO implements  IGenericoDAO<Paciente> {
     public void eliminar(int id) {
         Connection con;
          try {
-             con = ConexionBD.conectar();
+              con = conexion.getConexion();
               PreparedStatement pst;
                ResultSet rs;
                
@@ -94,8 +101,44 @@ public class PacienteDAO implements  IGenericoDAO<Paciente> {
         
         
     }
-
     
+    
+    @Override
+    public Paciente enviarDatosID(int id){
+        
+        Paciente p = new Paciente();
+        
+         try {
+             Connection con = conexion.getConexion();
+             PreparedStatement pst;
+             ResultSet rs;
+             
+             
+             pst = con.prepareStatement("select * from pacientes where id_paciente=?");
+             pst.setString(1,String.valueOf(id));
+             rs = pst.executeQuery();
+             
+             while(rs.next()){
+                p.setId(rs.getInt("id_paciente"));
+                p.setNombre(rs.getString("nombre_paciente"));
+                p.setApellido(rs.getString("apellido_paciente"));
+                p.setFechaNacimiento(rs.getString("fecha_nacimiento"));
+                p.setGenero(rs.getString("genero"));
+                p.setDireccion(rs.getString("direccion"));
+                p.setTelefono(rs.getString("telefono_paciente"));
+                p.setDetalles(rs.getString("detalles"));               
+             }
+                     
+         } catch (Exception ex) {
+             Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
+         }
+        
+         return p;
+        
+    }
+    
+    
+ 
     @Override
 public List<Paciente> listarTodos(String nombre) {
     List<Paciente> pacientes = new ArrayList<>();
@@ -110,7 +153,7 @@ public List<Paciente> listarTodos(String nombre) {
     }
 
     try {
-         Connection con = ConexionBD.conectar();
+         Connection con = conexion.getConexion();
         PreparedStatement pst = con.prepareStatement(sql);
 
         // Si hay filtro, establecer los parámetros con %palabra%

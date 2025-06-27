@@ -5,6 +5,7 @@
  */
 package model;
 
+import interfaces.IConexion;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -13,7 +14,7 @@ import java.sql.SQLException;
  *
  * @author Hello
  */
-public class ConexionBD {
+public class ConexionBD implements IConexion{
     
     private static final String URL = "jdbc:mysql://localhost/clinica?useSSL=false";
     private static final String USER = "root";
@@ -22,7 +23,8 @@ public class ConexionBD {
     
     private static Connection con = null;
     
-      public static Connection conectar() throws Exception {
+    @Override
+      public Connection getConexion()throws Exception {
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection(URL,USER,PASSWORD);      

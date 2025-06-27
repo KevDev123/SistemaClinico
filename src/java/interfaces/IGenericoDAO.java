@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package dao;
+package interfaces;
 
 import java.util.List;
 
@@ -15,5 +15,6 @@ public interface IGenericoDAO<T>{
     void guardar(T entidad);
     void actualizar(T entidad);
     void eliminar(int id);
+    T enviarDatosID(int id);
     List<T> listarTodos(String nombre);
 }
