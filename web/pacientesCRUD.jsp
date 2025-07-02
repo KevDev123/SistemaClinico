@@ -1,5 +1,8 @@
 
 
+<%@page import="interfaces.IConexion"%>
+<%@page import="model.ConexionBD"%>
+<%@page import="model.ConexionBD"%>
 <%@page import="model.Paciente"%>
 <%@page import="dao.PacienteDAO"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -25,7 +28,8 @@
             isEdit = true;
             idPaciente = Integer.parseInt(request.getParameter("id"));
             
-            PacienteDAO p = new PacienteDAO();
+            IConexion c = new ConexionBD();
+            PacienteDAO p = new PacienteDAO(c);
             Paciente pa = p.enviarDatosID(idPaciente);
                       
             
@@ -42,9 +46,7 @@
         
         // Obtener fecha actual en formato YYYY-MM-DD
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String fechaMaxima = sdf.format(new Date());
-        String message = isEdit ? "Paciente actualizado correctamente" : "Paciente guardado correctamente";
-        
+        String fechaMaxima = sdf.format(new Date());       
 %>
     <head>
         <title><%= isEdit ? "Editar" : "Agregar"%> Paciente</title>

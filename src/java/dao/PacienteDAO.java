@@ -28,9 +28,12 @@ public class PacienteDAO implements  IGenericoDAO<Paciente> {
     
     private final IConexion conexion;
 
+ 
+    
     public PacienteDAO(IConexion conexion) {
         this.conexion = conexion;
     }
+    
     
      @Override
     public void guardar(Paciente p) {

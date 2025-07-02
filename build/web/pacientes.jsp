@@ -1,4 +1,6 @@
 
+<%@page import="interfaces.IConexion"%>
+<%@page import="model.ConexionBD"%>
 <%@page import="dao.IGenericoDAO"%>
 <%@page import="java.util.List"%>
 <%@page import="model.Paciente"%>
@@ -64,9 +66,10 @@
                         </thead>
                         <tbody>
                             <%
-                                     String buscarTerm = request.getParameter("buscar");
-                                    PacienteDAO pacienteDAO = new PacienteDAO();
-                                    List<Paciente> lista = pacienteDAO.listarTodos(buscarTerm);
+                                        String buscarTerm = request.getParameter("buscar");
+                                        IConexion c = new ConexionBD();
+                                       PacienteDAO pacienteDAO = new PacienteDAO(c);
+                                       List<Paciente> lista = pacienteDAO.listarTodos(buscarTerm);
                                     if (lista.isEmpty()) {
                             %>
                             <tr>

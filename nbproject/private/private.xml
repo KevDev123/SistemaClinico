@@ -3,11 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/interfaces/IConexion.java</file>
-            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/interfaces/IGenericoDAO.java</file>
-            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/model/ConexionBD.java</file>
-            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/dao/PacienteDAO.java</file>
-            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/controller/PacienteServlet.java</file>
+            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/dao/MedicoDAO.java</file>
+            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/model/Medico.java</file>
+            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/controller/MedicoServlet.java</file>
+            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/web/pacientesCRUD.jsp</file>
+            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/web/medicosCRUD.jsp</file>
         </group>
     </open-files>
 </project-private>
