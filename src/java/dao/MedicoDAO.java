@@ -113,8 +113,7 @@ public class MedicoDAO implements IGenericoDAO<Medico> {
              ResultSet rs;
              
              
-             pst = con.prepareStatement("SELECT `medicos`.*,`especialidades`.`nombre_especialidad` FROM `medicos` INNER JOIN `especialidades`ON `especialidades`.`id_especialidad` = `medicos`.`id_especialidad`");
-             pst.setString(1,String.valueOf(id));
+             pst = con.prepareStatement("SELECT m.*,es.nombre_especialidad FROM medicos m INNER JOIN especialidades es ON es.id_especialidad = m.id_especialidad");
              rs = pst.executeQuery();
              
              while(rs.next()){
@@ -129,7 +128,7 @@ public class MedicoDAO implements IGenericoDAO<Medico> {
          } catch (Exception ex) {
              Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
          }
-        
+        System.out.println(m);
          return m;
        
     }
@@ -137,26 +136,35 @@ public class MedicoDAO implements IGenericoDAO<Medico> {
         @Override
     public List<Medico> listarTodos(String nombre) {
         List<Medico> medicos = new ArrayList<>();
+        Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
 
-        String sql = "SELECT * FROM medicos";
-        if (nombre != null && !nombre.trim().isEmpty()) {
-            sql += " WHERE nombre_medico LIKE ?"
-                 + " OR apellido_medico LIKE ?"
-                 + " OR telefono_medico LIKE ?";
-        }
+           // Base de la consulta con JOIN
+              String sql = "SELECT m.*, es.nombre_especialidad FROM medicos m "
+               + "INNER JOIN especialidades es ON es.id_especialidad = m.id_especialidad";
+
+            // Agregar filtros si se proporciona texto de búsqueda
+            if (nombre != null && !nombre.trim().isEmpty()) {
+                sql += " WHERE m.nombre_medico LIKE ?"
+                     + " OR m.apellido_medico LIKE ?"
+                     + " OR m.telefono_medico LIKE ?"
+                     + " OR es.nombre_especialidad LIKE ?";
+            }
 
         try {
-            Connection con = conexion.getConexion();
-            PreparedStatement pst = con.prepareStatement(sql);
+             con = conexion.getConexion();
+            pst = con.prepareStatement(sql);
 
             if (nombre != null && !nombre.trim().isEmpty()) {
                 String filtro = "%" + nombre + "%";
                 pst.setString(1, filtro);
                 pst.setString(2, filtro);
                 pst.setString(3, filtro);
+                pst.setString(4, filtro);
             }
 
-            ResultSet rs = pst.executeQuery();
+            rs = pst.executeQuery();
             while (rs.next()) {
                 Medico m = new Medico();
                 m.setId(rs.getInt("id_medico"));
@@ -164,6 +172,7 @@ public class MedicoDAO implements IGenericoDAO<Medico> {
                 m.setApellido(rs.getString("apellido_medico"));
                 m.setEspecialidad(rs.getInt("id_especialidad"));
                 m.setTelefono(rs.getString("telefono_medico"));
+                m.setNombreEspecialidad(rs.getString("nombre_especialidad"));
                 medicos.add(m);
             }
 

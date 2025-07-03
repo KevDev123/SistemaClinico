@@ -6,8 +6,14 @@
             <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/dao/MedicoDAO.java</file>
             <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/model/Medico.java</file>
             <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/controller/MedicoServlet.java</file>
+            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/web/pacientes.jsp</file>
+            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/web/consultas.jsp</file>
+            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/interfaces/IGenericoDAO.java</file>
             <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/web/pacientesCRUD.jsp</file>
             <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/web/medicosCRUD.jsp</file>
+            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/model/ConexionBD.java</file>
+            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/web/medicos.jsp</file>
+            <file>file:/C:/Users/Hello/Desktop/Proyectos%20grupales/SistemaClinica/src/java/controller/PacienteServlet.java</file>
         </group>
     </open-files>
 </project-private>

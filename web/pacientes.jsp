@@ -1,7 +1,7 @@
 
 <%@page import="interfaces.IConexion"%>
 <%@page import="model.ConexionBD"%>
-<%@page import="dao.IGenericoDAO"%>
+<%@page import="interfaces.IGenericoDAO"%>
 <%@page import="java.util.List"%>
 <%@page import="model.Paciente"%>
 <%@page import="dao.PacienteDAO"%>

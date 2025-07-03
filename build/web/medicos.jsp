@@ -1,4 +1,9 @@
 
+<%@page import="model.Medico"%>
+<%@page import="java.util.List"%>
+<%@page import="interfaces.IConexion"%>
+<%@page import="dao.MedicoDAO"%>
+<%@page import="model.ConexionBD"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -6,6 +11,17 @@
         <title>Gestión de Medicos</title>
     </head>
     <body>
+          <%
+            String msg = request.getParameter("msg");
+            if (msg != null) {
+        %>
+            <script>
+                alert("<%= msg %>");
+            </script>
+            <%
+                }
+            %>
+
         <%@include file="header.jsp" %>
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -45,31 +61,11 @@
                         </thead>
                         <tbody>
                             <%
-                                Connection con = null;
-                                Statement st = null;
-                                ResultSet rs = null;
-                                String buscarTerm = request.getParameter("buscar");
-
-                                try {
-                                    Class.forName("com.mysql.jdbc.Driver");
-                                    con = DriverManager.getConnection("jdbc:mysql://localhost/clinica?useSSL=false", "root", "");
-                                    st = con.createStatement();
-                                    String sql = "SELECT m.id_medico, m.nombre_medico, m.apellido_medico, "
-                                            + "e.nombre_especialidad AS especialidad, m.telefono_medico "
-                                            + "FROM medicos AS m "
-                                            + "INNER JOIN especialidades AS e ON m.id_especialidad = e.id_especialidad";
-
-                                    if (buscarTerm != null && !buscarTerm.isEmpty()) {
-                                        sql += " WHERE (m.nombre_medico LIKE '%" + buscarTerm + "%' "
-                                                + "OR m.apellido_medico LIKE '%" + buscarTerm + "%' "
-                                                + "OR e.nombre_especialidad LIKE '%" + buscarTerm + "%' "
-                                                + "OR m.telefono_medico LIKE '%" + buscarTerm + "%')";
-                                    }
-                                    
-                                    st = con.createStatement();
-                                    rs = st.executeQuery(sql);
-
-                                    if (!rs.isBeforeFirst() && buscarTerm != null && !buscarTerm.isEmpty()) {
+                                        String buscarTerm = request.getParameter("buscar");
+                                        IConexion c = new ConexionBD();
+                                       MedicoDAO medicoDAO = new MedicoDAO(c);
+                                       List<Medico> lista = medicoDAO.listarTodos(buscarTerm);
+                                    if (lista.isEmpty()) {
                             %>
                             <tr>
                                 <td colspan="9" class="text-center text-muted py-4">
@@ -80,16 +76,16 @@
                             </tr>
                             <%
                             } else {
-                                while (rs.next()) {
+                                for(Medico m : lista){
                             %>
                             <tr>
-                                <td><%= rs.getInt("id_medico")%></td>
-                                <td><%= rs.getString("nombre_medico")%></td>
-                                <td><%= rs.getString("apellido_medico")%></td>
-                                <td><%= rs.getString("especialidad")%></td>
-                                <td><%= rs.getString("telefono_medico") != null ? rs.getString("telefono_medico") : "-"%></td>
+                                <td><%= m.getId()%></td>
+                                <td><%= m.getNombre()%></td>
+                                <td><%= m.getApellido()%></td>
+                                <td><%= m.getNombreEspecialidad()%></td>
+                                <td><%= m.getTelefono() != null ? m.getTelefono() : "-"%></td>
                                 <td class="action-buttons">
-                                    <a href="medicosCRUD.jsp?accion=editar&id=<%= rs.getInt("m.id_medico")%>" 
+                                    <a href="medicosCRUD.jsp?accion=editar&id=<%= m.getId() %>" 
                                        class="btn btn-sm"
                                        style="color: green;"
                                        data-bs-toggle="tooltip" 
@@ -97,7 +93,7 @@
                                        title="Editar Médico">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="medicosEliminar.jsp?accion=eliminar&id=<%= rs.getInt("m.id_medico")%>" 
+                                    <a href="medicosEliminar.jsp?accion=eliminar&id=<%= m.getId() %>" 
                                        class="btn btn-sm"
                                        style="color: red;"
                                        data-bs-toggle="tooltip" 
@@ -111,19 +107,7 @@
                             <%
                                         }
                                     }
-                                } catch (Exception e) {
-                                    out.println("<tr><td colspan='7' class='text-danger'>Error al cargar medicos: " + e.getMessage() + "</td></tr>");
-                                } finally {
-                                    if (rs != null) {
-                                        rs.close();
-                                    }
-                                    if (st != null) {
-                                        st.close();
-                                    }
-                                    if (con != null) {
-                                        con.close();
-                                    }
-                                }
+                              
                             %>
                         </tbody>
                     </table>

@@ -1,9 +1,12 @@
 
+<%@page import="interfaces.IConexion"%>
+<%@page import="model.ConexionBD"%>
 <%@page import="dao.PacienteDAO"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
     String id = request.getParameter("id");
-    PacienteDAO paciente = new PacienteDAO();
+    IConexion con = new ConexionBD();
+    PacienteDAO paciente = new PacienteDAO(con);
     paciente.eliminar(Integer.parseInt(id));
 %>
 <script>

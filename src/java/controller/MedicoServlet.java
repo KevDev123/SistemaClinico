@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import model.ConexionBD;
 import model.Medico;
 
-
+@WebServlet("/MedicoServlet")
 public class MedicoServlet extends HttpServlet {
     
     protected void doPost(HttpServletRequest request,HttpServletResponse response)throws ServletException, IOException{

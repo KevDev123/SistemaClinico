@@ -19,22 +19,30 @@
     // Variables para modo edición
     boolean isEdit = false;
     int idMedico = 0;
-    if (request.getParameter("id") != null) {
-        isEdit = true;
-        idMedico = Integer.parseInt(request.getParameter("id"));
-    }
-
     IConexion con = new ConexionBD();
     MedicoDAO dao = new MedicoDAO(con);
-    Medico me = dao.enviarDatosID(idMedico);
+       
     
     
-    //Cargar datos si es modificacion 
-    nombreMod = me.getNombre();
-    apellidoMod = me.getApellido();    
-    telefonoMod = me.getTelefono();
-    idEspecialidadMod = me.getEspecialidad();
-    especialidadMod = me.getNombreEspecialidad();
+    if (request.getParameter("id") != null) {
+        
+        
+        isEdit = true;
+        idMedico = Integer.parseInt(request.getParameter("id"));
+         Medico me = dao.enviarDatosID(idMedico);
+         
+            //Cargar datos si es modificacion 
+        nombreMod = me.getNombre();
+        apellidoMod = me.getApellido();    
+        telefonoMod = me.getTelefono();
+        idEspecialidadMod = me.getEspecialidad();
+        especialidadMod = me.getNombreEspecialidad();
+    }
+
+
+    
+    
+    
     
 %>
 
@@ -53,7 +61,7 @@
                             <h4 class="mb-0"><%= isEdit ? "Editar Datos del Médico" : "Nuevo Médico"%></h4>
                         </div>
                         <div class="card-body">
-                            <form method="post" action="MedicoServlet">
+                        <form method="post" action="MedicoServlet">
                                  <% if (isEdit) {%>
                                 <input type="hidden" name="id" value="<%= idMedico%>">
                                 <% }%>
@@ -70,50 +78,23 @@
                                     </div>
                                 </div>
 
-                                <div class="row mb-3">
-                                    <%
-                                        // Conexión a la base de datos para obtener especialidades
-                                        Connection conEspecialidades = null;
-                                        Statement stmt = null;
-                                        ResultSet rsEspecialidades = null;
-
-                                        try {
-                                            Class.forName("com.mysql.cj.jdbc.Driver");
-                                            conEspecialidades = DriverManager.getConnection("jdbc:mysql://localhost/clinica?useSSL=false", "root", "");
-                                            stmt = conEspecialidades.createStatement();
-                                            rsEspecialidades = stmt.executeQuery("SELECT id_especialidad, nombre_especialidad FROM especialidades ORDER BY nombre_especialidad");
-                                    %>
+                                <div class="row mb-3">                                 
                                     <div class="col-md-6">
                                         <label for="id_especialidad" class="form-label">Especialidad del médico</label>
                                         <select class="form-select" id="id_especialidad" name="id_especialidad" required>
-                                            <option value="" <%= especialidadMod.isEmpty() ? "selected disabled" : ""%>>Seleccione una especialidad</option>
+                                            <option value="" >Seleccione una especialidad</option>
                                             <%
                                                 Map<Integer, String> resultado = dao.obtenerEspecialidades();
                                                 
                                                 for( Map.Entry<Integer, String> entry : resultado.entrySet()){
-                                                    String selected = rsEspecialidades.getString("id_especialidad").equals(especialidadMod) ? "selected" : "";
+                                                    String selected = String.valueOf(entry.getKey()).equals(String.valueOf(idEspecialidadMod)) ? "selected" : "";
                                                     out.println("<option value='" + entry.getKey() + "' " + selected + ">"
                                                             + entry.getValue() + "</option>");
                                                 }                                                                                                                                    
                                             %>
                                         </select>
                                     </div>
-                                    <%
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        } finally {
-                                            if (rsEspecialidades != null) {
-                                                rsEspecialidades.close();
-                                            }
-                                            if (stmt != null) {
-                                                stmt.close();
-                                            }
-                                            if (conEspecialidades != null) {
-                                                conEspecialidades.close();
-                                            }
-                                        }
-                                    %>
-
+                                        
                                     <div class="col-md-6">
                                         <label for="telefono" class="form-label">Teléfono del médico</label>
                                         <input type="tel" class="form-control" id="telefono" name="telefono"

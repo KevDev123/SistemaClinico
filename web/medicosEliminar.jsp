@@ -1,18 +1,16 @@
 
+<%@page import="dao.MedicoDAO"%>
+<%@page import="interfaces.IConexion"%>
+<%@page import="model.ConexionBD"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
     String id = request.getParameter("id");
 
-    Connection con;
-    PreparedStatement pst;
-    ResultSet rs;
-
-    Class.forName("com.mysql.jdbc.Driver");
-    con = DriverManager.getConnection("jdbc:mysql://localhost/clinica?useSSL=false", "root", "");
-
-    pst = con.prepareStatement("delete from medicos where id_medico =?");
-    pst.setString(1, id);
-    pst.executeUpdate();
+    IConexion con = new ConexionBD();
+    MedicoDAO medico = new MedicoDAO(con);
+    medico.eliminar(Integer.parseInt(id));
+    
+    
 %>
 <script>
     alert("Medico eliminado");
