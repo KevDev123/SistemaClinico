@@ -1,18 +1,15 @@
 
+<%@page import="dao.EspecialidadDAO"%>
+<%@page import="model.ConexionBD"%>
+<%@page import="interfaces.IConexion"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
     String id = request.getParameter("id");
 
-    Connection con;
-    PreparedStatement pst;
-    ResultSet rs;
-
-    Class.forName("com.mysql.jdbc.Driver");
-    con = DriverManager.getConnection("jdbc:mysql://localhost/clinica?useSSL=false", "root", "");
-
-    pst = con.prepareStatement("delete from especialidades where id_especialidad   =?");
-    pst.setString(1, id);
-    pst.executeUpdate();
+    
+   IConexion con = new ConexionBD();
+   EspecialidadDAO dao = new EspecialidadDAO(con);
+   dao.eliminar(Integer.parseInt(id));
 %>
 <script>
     alert("Especialidad eliminada");

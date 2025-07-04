@@ -1,4 +1,9 @@
 
+<%@page import="model.Especialidad"%>
+<%@page import="java.util.List"%>
+<%@page import="dao.EspecialidadDAO"%>
+<%@page import="model.ConexionBD"%>
+<%@page import="interfaces.IConexion"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -6,6 +11,16 @@
         <title>Gestión de Especialidades</title>
     </head>
     <body>
+            <%
+            String msg = request.getParameter("msg");
+            if (msg != null) {
+        %>
+            <script>
+                alert("<%= msg %>");
+            </script>
+            <%
+                }
+            %>
         <%@include file="header.jsp" %>
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -42,25 +57,11 @@
                         </thead>
                         <tbody>
                             <%
-                                Connection con = null;
-                                Statement st = null;
-                                ResultSet rs = null;
-                                String buscarTerm = request.getParameter("buscar");
-
-                                try {
-                                    Class.forName("com.mysql.jdbc.Driver");
-                                    con = DriverManager.getConnection("jdbc:mysql://localhost/clinica?useSSL=false", "root", "");
-                                    st = con.createStatement();
-                                    String sql = "SELECT * FROM especialidades";
-
-                                    if (buscarTerm != null && !buscarTerm.isEmpty()) {
-                                        sql += " WHERE nombre_especialidad LIKE '%" + buscarTerm + "%'";
-                                    }
-                                    
-                                    st = con.createStatement();
-                                    rs = st.executeQuery(sql);
-
-                                    if (!rs.isBeforeFirst() && buscarTerm != null && !buscarTerm.isEmpty()) {
+                                        String buscarTerm = request.getParameter("buscar");
+                                        IConexion c = new ConexionBD();
+                                        EspecialidadDAO especialidadDAO = new EspecialidadDAO(c);
+                                       List<Especialidad> lista = especialidadDAO.listarTodos(buscarTerm);
+                                    if (lista.isEmpty()) {
                             %>
                             <tr>
                                 <td colspan="3" class="text-center text-muted py-4">
@@ -70,14 +71,14 @@
                                 </td>
                             </tr>
                             <%
-                            } else {
-                                while (rs.next()) {
+                            }else{
+                               for(Especialidad es : lista){
                             %>
                             <tr>
-                                <td><%= rs.getInt("id_especialidad")%></td>
-                                <td><%= rs.getString("nombre_especialidad")%></td>
+                                <td><%= es.getId() %></td>
+                                <td><%= es.getNombre() %></td>
                                 <td class="action-buttons">
-                                    <a href="especialidadesCRUD.jsp?accion=editar&id=<%= rs.getInt("id_especialidad")%>" 
+                                    <a href="especialidadesCRUD.jsp?accion=editar&id=<%= es.getId() %>" 
                                        class="btn btn-sm"
                                        style="color: green;"
                                        data-bs-toggle="tooltip" 
@@ -85,7 +86,7 @@
                                        title="Editar Especialidad">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="especialidadesEliminar.jsp?accion=eliminar&id=<%= rs.getInt("id_especialidad")%>" 
+                                    <a href="especialidadesEliminar.jsp?accion=eliminar&id=<%= es.getId() %>" 
                                        class="btn btn-sm"
                                        style="color: red;"
                                        data-bs-toggle="tooltip" 
@@ -98,20 +99,7 @@
                             </tr>
                             <%
                                         }
-                                    }
-                                } catch (Exception e) {
-                                    out.println("<tr><td colspan='3' class='text-danger'>Error al cargar especialidades: " + e.getMessage() + "</td></tr>");
-                                } finally {
-                                    if (rs != null) {
-                                        rs.close();
-                                    }
-                                    if (st != null) {
-                                        st.close();
-                                    }
-                                    if (con != null) {
-                                        con.close();
-                                    }
-                                }
+                                    }                  
                             %>
                         </tbody>
                     </table>

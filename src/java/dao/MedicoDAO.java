@@ -113,7 +113,8 @@ public class MedicoDAO implements IGenericoDAO<Medico> {
              ResultSet rs;
              
              
-             pst = con.prepareStatement("SELECT m.*,es.nombre_especialidad FROM medicos m INNER JOIN especialidades es ON es.id_especialidad = m.id_especialidad");
+             pst = con.prepareStatement("SELECT m.*,es.nombre_especialidad FROM medicos m INNER JOIN especialidades es ON es.id_especialidad = m.id_especialidad where m.id_medico=?");
+             pst.setInt(1, id);
              rs = pst.executeQuery();
              
              while(rs.next()){
