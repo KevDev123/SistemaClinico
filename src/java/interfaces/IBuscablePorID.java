@@ -5,16 +5,10 @@
  */
 package interfaces;
 
-import java.util.List;
-
 /**
  *
  * @author Hello
  */
-public interface IGenericoDAO<T> extends IGuardableDAO<T>, 
-    IActualizableDAO<T>, 
-    IEliminableDAO, 
-    IBuscablePorID<T>, 
-    IListableDAO<T> {
-   
+public interface IBuscablePorID<T> {
+     T enviarDatosID(int id);
 }
