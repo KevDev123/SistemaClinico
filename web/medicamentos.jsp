@@ -1,4 +1,9 @@
 
+<%@page import="model.Medicamento"%>
+<%@page import="java.util.List"%>
+<%@page import="dao.MedicamentoDAO"%>
+<%@page import="model.ConexionBD"%>
+<%@page import="interfaces.IConexion"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -6,6 +11,16 @@
         <title>Gestión de Medicamentos</title>
     </head>
     <body>
+               <%
+            String msg = request.getParameter("msg");
+            if (msg != null) {
+        %>
+            <script>
+                alert("<%= msg %>");
+            </script>
+            <%
+                }
+            %>
         <%@include file="header.jsp" %>
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -45,27 +60,14 @@
                         </thead>
                         <tbody>
                             <%
-                                Connection con = null;
-                                Statement st = null;
-                                ResultSet rs = null;
-                                String buscarTerm = request.getParameter("buscar");
+                      
+                                 String buscarTerm = request.getParameter("buscar");
+                                IConexion c = new ConexionBD();
+                                MedicamentoDAO dao = new MedicamentoDAO(c);
+                                List<Medicamento> lista = dao.listarTodos(buscarTerm);
+                                
 
-                                try {
-                                    Class.forName("com.mysql.jdbc.Driver");
-                                    con = DriverManager.getConnection("jdbc:mysql://localhost/clinica?useSSL=false", "root", "");
-                                    st = con.createStatement();
-                                    String sql = "SELECT * FROM medicamentos";
-
-                                    if (buscarTerm != null && !buscarTerm.isEmpty()) {
-                                        sql += " WHERE (nombre_medicamento LIKE '%" + buscarTerm + "%' "
-                                                + "OR via_transmision LIKE '%" + buscarTerm + "%' "
-                                                + "OR cantidad_disponible LIKE '%" + buscarTerm + "%')";
-                                    }
-                                    
-                                    st = con.createStatement();
-                                    rs = st.executeQuery(sql);
-
-                                    if (!rs.isBeforeFirst() && buscarTerm != null && !buscarTerm.isEmpty()) {
+                                    if (lista.isEmpty()) {
                             %>
                             <tr>
                                 <td colspan="6" class="text-center text-muted py-4">
@@ -76,16 +78,16 @@
                             </tr>
                             <%
                             } else {
-                                while (rs.next()) {
+                                for(Medicamento me : lista){
                             %>
                             <tr>
-                                <td><%= rs.getInt("id_medicamento")%></td>
-                                <td><%= rs.getString("nombre_medicamento")%></td>
-                                <td><%= rs.getString("via_transmision")%></td>
-                                <td><%= rs.getDate("fecha_vencimiento")%></td>
-                                <td><%= rs.getInt("cantidad_disponible")%></td>
+                                <td><%= me.getId()%></td>
+                                <td><%= me.getNombre()%></td>
+                                <td><%= me.getViaTransmision()%></td>
+                                <td><%= me.getFecha()%></td>
+                                <td><%= me.getCantidad()%></td>
                                 <td class="action-buttons">
-                                    <a href="medicamentosCRUD.jsp?accion=editar&id=<%= rs.getInt("id_medicamento")%>" 
+                                    <a href="medicamentosCRUD.jsp?accion=editar&id=<%= me.getId()%>" 
                                        class="btn btn-sm"
                                        style="color: green;"
                                        data-bs-toggle="tooltip" 
@@ -93,7 +95,7 @@
                                        title="Editar Medicamento">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="medicamentosEliminar.jsp?accion=eliminar&id=<%= rs.getInt("id_medicamento")%>" 
+                                    <a href="medicamentosEliminar.jsp?accion=eliminar&id=<%= me.getId()%>" 
                                        class="btn btn-sm"
                                        style="color: red;"
                                        data-bs-toggle="tooltip" 
@@ -106,20 +108,7 @@
                             </tr>
                             <%
                                         }
-                                    }
-                                } catch (Exception e) {
-                                    out.println("<tr><td colspan='6' class='text-danger'>Error al cargar medicamentos: " + e.getMessage() + "</td></tr>");
-                                } finally {
-                                    if (rs != null) {
-                                        rs.close();
-                                    }
-                                    if (st != null) {
-                                        st.close();
-                                    }
-                                    if (con != null) {
-                                        con.close();
-                                    }
-                                }
+                                    }                            
                             %>
                         </tbody>
                     </table>

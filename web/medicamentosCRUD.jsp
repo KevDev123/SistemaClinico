@@ -1,112 +1,43 @@
 
+<%@page import="interfaces.IGenericoDAO"%>
+<%@page import="model.Medicamento"%>
+<%@page import="dao.MedicamentoDAO"%>
+<%@page import="model.ConexionBD"%>
+<%@page import="interfaces.IConexion"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
-    // Variables para modo edición
-    boolean isEdit = false;
-    int idMedicamento = 0;
-    if (request.getParameter("id") != null) {
-        isEdit = true;
-        idMedicamento = Integer.parseInt(request.getParameter("id"));
-    }
-
-    // Obtener fecha actual en formato YYYY-MM-DD
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    String fechaActual = sdf.format(new Date());
-
-    // Procesar formulario
-    if (request.getParameter("submit") != null) {
-        String nombre = request.getParameter("nombre");
-        String viaTransmision = request.getParameter("viaTransmision");
-        String fechaVencimiento = request.getParameter("fechaVencimiento");
-        String cantidadDisponible = request.getParameter("cantidadDisponible");
-
-        Connection con = null;
-        PreparedStatement pst = null;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://localhost/clinica?useSSL=false", "root", "");
-
-            if (isEdit) {
-                // Consulta UPDATE para modificación
-                pst = con.prepareStatement("UPDATE medicamentos SET nombre_medicamento=?, via_transmision=?, fecha_vencimiento=?, cantidad_disponible=? WHERE id_medicamento=?");
-                pst.setString(1, nombre);
-                pst.setString(2, viaTransmision);
-                pst.setString(3, fechaVencimiento);
-                pst.setInt(4, Integer.parseInt(cantidadDisponible));
-                pst.setInt(5, idMedicamento);
-            } else {
-                // Consulta INSERT para nuevo registro
-                pst = con.prepareStatement("INSERT INTO medicamentos(nombre_medicamento, via_transmision, fecha_vencimiento, cantidad_disponible) VALUES (?,?,?,?)");
-                pst.setString(1, nombre);
-                pst.setString(2, viaTransmision);
-                pst.setString(3, fechaVencimiento);
-                pst.setInt(4, Integer.parseInt(cantidadDisponible));
-            }
-
-            int rowsAffected = pst.executeUpdate();
-
-            if (rowsAffected > 0) {
-                String message = isEdit ? "Medicamento actualizado correctamente" : "Medicamento guardado correctamente";
-%>
-<script>
-    alert("<%= message%>");
-    window.location.href = "medicamentos.jsp";
-</script>
-<%
-    }
-} catch (Exception e) {
-%>
-<script>
-    alert("Error: <%= e.getMessage()%>");
-</script>
-<%
-        } finally {
-            if (pst != null) {
-                pst.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
-    }
-
-    // Cargar datos si es modificación
+       // Cargar datos si es modificación
     String nombreMod = "";
     String viaTransmisionMod = "";
     String fechaVencimientoMod = "";
     String cantidadDisponibleMod = "";
-
-    if (isEdit) {
-        Connection con = null;
-        PreparedStatement pst = null;
-        ResultSet rs = null;
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://localhost/clinica?useSSL=false", "root", "");
-            pst = con.prepareStatement("SELECT * FROM medicamentos WHERE id_medicamento = ?");
-            pst.setInt(1, idMedicamento);
-            rs = pst.executeQuery();
-
-            if (rs.next()) {
-                nombreMod = rs.getString("nombre_medicamento");
-                viaTransmisionMod = rs.getString("via_transmision");
-                fechaVencimientoMod = rs.getString("fecha_vencimiento");
-                cantidadDisponibleMod = rs.getString("cantidad_disponible");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (pst != null) {
-                pst.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-        }
+    
+    
+    // Variables para modo edición
+    boolean isEdit = false;
+    int idMedicamento = 0;
+    
+    if (request.getParameter("id") != null) {
+        isEdit = true;
+        idMedicamento = Integer.parseInt(request.getParameter("id"));
     }
+    
+    if(isEdit){
+        IConexion c = new ConexionBD();
+        IGenericoDAO<Medicamento> dao = new MedicamentoDAO(c);
+        Medicamento medicamento = dao.enviarDatosID(idMedicamento);
+        
+        nombreMod = medicamento.getNombre();
+        viaTransmisionMod = medicamento.getViaTransmision();
+        fechaVencimientoMod = medicamento.getFecha();
+        cantidadDisponibleMod = String.valueOf(medicamento.getCantidad());
+        
+    }
+    
+
+    // Obtener fecha actual en formato YYYY-MM-DD
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    String fechaActual = sdf.format(new Date());
 %>
 
 <!DOCTYPE html>
@@ -124,7 +55,10 @@
                             <h4 class="mb-0"><%= isEdit ? "Editar Datos del Medicamento" : "Nuevo Medicamento"%></h4>
                         </div>
                         <div class="card-body">
-                            <form method="post" action="">
+                            <form method="post" action="MedicamentoServlet">
+                                 <% if (isEdit){%>
+                                <input type="hidden" name="id" value="<%= idMedicamento%>">
+                                <% }%>
                                 <div class="mb-3">
                                     <label for="nombre" class="form-label">Nombre del Medicamento</label>
                                     <input type="text" class="form-control" id="nombre" name="nombre" 
