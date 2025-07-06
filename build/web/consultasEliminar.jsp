@@ -1,19 +1,16 @@
 
+<%@page import="dao.ConsultaDAO"%>
+<%@page import="model.ConexionBD"%>
+<%@page import="interfaces.IConexion"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
     String id = request.getParameter("id");
     String idPaciente = request.getParameter("id_Paciente");
 
-    Connection con;
-    PreparedStatement pst;
-    ResultSet rs;
-
-    Class.forName("com.mysql.jdbc.Driver");
-    con = DriverManager.getConnection("jdbc:mysql://localhost/clinica?useSSL=false", "root", "");
-
-    pst = con.prepareStatement("delete from consultas where id_consulta=?");
-    pst.setString(1, id);
-    pst.executeUpdate();
+   IConexion con = new ConexionBD();
+   ConsultaDAO dao = new ConsultaDAO(con);
+   
+   dao.eliminar(Integer.parseInt(id));
 %>
 <script>
     alert("Consulta eliminada");

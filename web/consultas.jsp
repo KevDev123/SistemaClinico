@@ -1,4 +1,10 @@
 
+<%@page import="dao.ConsultaDAO"%>
+<%@page import="model.Consulta"%>
+<%@page import="java.util.List"%>
+<%@page import="interfaces.IListableIdDAO"%>
+<%@page import="model.ConexionBD"%>
+<%@page import="interfaces.IConexion"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -38,28 +44,13 @@
                         </thead>
                         <tbody>
                             <%
-                                Connection con = null;
-                                Statement st = null;
-                                ResultSet rs = null;;
+                           
                                 String idPaciente = request.getParameter("id_paciente");
-
-                                try {
-                                    Class.forName("com.mysql.jdbc.Driver");
-                                    con = DriverManager.getConnection("jdbc:mysql://localhost/clinica?useSSL=false", "root", "");
-                                    st = con.createStatement();
-                                    String sql = "SELECT c.id_consulta, "
-                                            + "CONCAT(p.nombre_paciente, ' ', p.apellido_paciente) AS paciente, "
-                                            + "CONCAT(m.nombre_medico, ' ', m.apellido_medico) AS medico, "
-                                            + "c.fecha_consulta, c.observaciones "
-                                            + "FROM consultas c "
-                                            + "INNER JOIN pacientes p ON c.id_paciente = p.id_paciente "
-                                            + "INNER JOIN medicos m ON c.id_medico = m.id_medico "
-                                            + "WHERE c.id_paciente = " + idPaciente;
-
-                                    st = con.createStatement();
-                                    rs = st.executeQuery(sql);
-
-                                    if (!rs.isBeforeFirst()) {
+                                IConexion con = new ConexionBD();
+                                IListableIdDAO consulta = new ConsultaDAO(con);
+                                List<Consulta> lista = consulta.listarporID(Integer.parseInt(idPaciente));
+                               
+                                    if (lista.isEmpty()) {
                             %>
                             <tr>
                                 <td colspan="5" class="text-center text-muted py-4">
@@ -68,16 +59,16 @@
                             </tr>
                             <%
                             } else {
-                                while (rs.next()) {
+                                for(Consulta co : lista){
                             %>
                             <tr>
-                                <td><%= rs.getInt("id_consulta")%></td>
-                                <td><%= rs.getString("paciente")%></td>
-                                <td><%= rs.getString("medico")%></td>
-                                <td><%= rs.getDate("fecha_consulta")%></td>
-                                <td><%= rs.getString("observaciones") != null ? rs.getString("observaciones") : "-"%></td>
+                                <td><%= co.getId()%></td>
+                                <td><%= co.getNombrePaciente()%></td>
+                                <td><%= co.getNombreMedico()%></td>
+                                <td><%= co.getFecha()%></td>
+                                <td><%= co.getObservaciones() != null ? co.getObservaciones() : "-"%></td>
                                 <td class="action-buttons">
-                                    <a href="consultasCRUD.jsp?accion=editar&id=<%= rs.getInt("c.id_consulta")%>" 
+                                    <a href="consultasCRUD.jsp?accion=editar&id=<%= co.getId()%>" 
                                        class="btn btn-sm"
                                        style="color: green;"
                                        data-bs-toggle="tooltip" 
@@ -85,7 +76,7 @@
                                        title="Editar consulta">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="consultasEliminar.jsp?accion=eliminar&id=<%= rs.getInt("c.id_consulta")%>&id_Paciente=<%= id_paciente%>" 
+                                    <a href="consultasEliminar.jsp?accion=eliminar&id=<%= co.getId()%>&id_Paciente=<%= id_paciente%>" 
                                        class="btn btn-sm"
                                        style="color: red;"
                                        data-bs-toggle="tooltip" 
@@ -94,7 +85,7 @@
                                        onclick="return confirm('¿Está seguro de eliminar esta consulta?')">
                                         <i class="bi bi-trash"></i>
                                     </a>
-                                    <a href="recetasCRUD.jsp?accion=nuevo&idConsulta=<%= rs.getInt("c.id_consulta")%>" 
+                                    <a href="recetasCRUD.jsp?accion=nuevo&idConsulta=<%= co.getId()%>" 
                                        class="btn btn-sm"
                                        style="color: #17a2b8;"
                                        data-bs-toggle="tooltip" 
@@ -107,19 +98,7 @@
                             <%
                                         }
                                     }
-                                } catch (Exception e) {
-                                    out.println("<tr><td colspan='5' class='text-danger'>Error al cargar consultas: " + e.getMessage() + "</td></tr>");
-                                } finally {
-                                    if (rs != null) {
-                                        rs.close();
-                                    }
-                                    if (st != null) {
-                                        st.close();
-                                    }
-                                    if (con != null) {
-                                        con.close();
-                                    }
-                                }
+                               
                             %>
                         </tbody>
                     </table>

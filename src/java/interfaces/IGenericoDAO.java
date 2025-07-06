@@ -14,7 +14,7 @@ import java.util.List;
 public interface IGenericoDAO<T> extends IGuardableDAO<T>, 
     IActualizableDAO<T>, 
     IEliminableDAO, 
-    IBuscablePorID<T>, 
+    IBuscablePorIdDAO<T>, 
     IListableDAO<T> {
    
 }

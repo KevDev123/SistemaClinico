@@ -9,6 +9,6 @@ package interfaces;
  *
  * @author Hello
  */
-public interface IBuscablePorID<T> {
+public interface IBuscablePorIdDAO<T> {
      T enviarDatosID(int id);
 }
