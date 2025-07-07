@@ -38,9 +38,13 @@ public class PacienteDAO implements  IGenericoDAO<Paciente> {
      @Override
     public void guardar(Paciente p) {
         
+            Connection con = null;
+            PreparedStatement pst = null;
+
+        
         try{
-        Connection con = conexion.getConexion();
-        PreparedStatement pst = null;        
+         con = conexion.getConexion();
+             
         pst = con.prepareStatement("INSERT INTO pacientes(nombre_paciente, apellido_paciente, fecha_nacimiento, genero, direccion, telefono_paciente, detalles) VALUES (?,?,?,?,?,?,?)");
                 pst.setString(1, p.getNombre());
                 pst.setString(2, p.getApellido());
@@ -56,15 +60,25 @@ public class PacienteDAO implements  IGenericoDAO<Paciente> {
             e.printStackTrace();
         } catch (Exception ex) {  
              Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
-         }  
+         }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+        }  
+        
+        
     }
     
 
     @Override
     public void actualizar(Paciente p) {
+        
+        
+            Connection con = null;
+            PreparedStatement pst = null;
+
        try{
-        Connection con = conexion.getConexion();
-        PreparedStatement pst = null;        
+         con = conexion.getConexion();
+        
          pst = con.prepareStatement("UPDATE pacientes SET nombre_paciente=?, apellido_paciente=?, fecha_nacimiento=?, genero=?, direccion=?, telefono_paciente=?, detalles=? WHERE id_paciente=?");
                 pst.setString(1, p.getNombre());
                 pst.setString(2, p.getApellido());
@@ -81,25 +95,31 @@ public class PacienteDAO implements  IGenericoDAO<Paciente> {
             e.printStackTrace();
         } catch (Exception ex) {  
              Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }  
+        }finally {     
+        try { if (pst != null) pst.close(); } catch (SQLException e) {}
+        try { if (con != null) con.close(); } catch (SQLException e) {}
+    }    
     }
 
     @Override
     public void eliminar(int id) {
-        Connection con;
+        
+           Connection con = null;
+            PreparedStatement pst = null;
+
          try {
               con = conexion.getConexion();
-              PreparedStatement pst;
-               ResultSet rs;
-               
-        
+
              pst = con.prepareStatement("delete from pacientes where id_paciente=?");
             pst.setString(1,String.valueOf(id));
             pst.executeUpdate();
              
          } catch (Exception ex) {
              Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
-         }
+         }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+         }  
        
         
         
@@ -109,14 +129,14 @@ public class PacienteDAO implements  IGenericoDAO<Paciente> {
     @Override
     public Paciente enviarDatosID(int id){
         
-        Paciente p = new Paciente();
+         Paciente p = new Paciente();
+         Connection con = null;
+          PreparedStatement pst = null;
+          ResultSet rs = null;
         
          try {
-             Connection con = conexion.getConexion();
-             PreparedStatement pst;
-             ResultSet rs;
-             
-             
+             con = conexion.getConexion();
+                      
              pst = con.prepareStatement("select * from pacientes where id_paciente=?");
              pst.setString(1,String.valueOf(id));
              rs = pst.executeQuery();
@@ -134,61 +154,77 @@ public class PacienteDAO implements  IGenericoDAO<Paciente> {
                      
          } catch (Exception ex) {
              Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
-         }
+         }finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+        } 
         
          return p;
+         
         
     }
     
     
- 
-    @Override
-public List<Paciente> listarTodos(String nombre) {
-    List<Paciente> pacientes = new ArrayList<>();
 
-    String sql = "SELECT * FROM pacientes";
-    if (nombre != null && !nombre.trim().isEmpty()) {
-        sql += " WHERE nombre_paciente LIKE ?"
-             + " OR apellido_paciente LIKE ?"
-             + " OR genero LIKE ?"
-             + " OR direccion LIKE ?"
-             + " OR telefono_paciente LIKE ?";
-    }
+        @Override
+    public List<Paciente> listarTodos(String nombre) {
 
-    try {
-         Connection con = conexion.getConexion();
-        PreparedStatement pst = con.prepareStatement(sql);
 
-        // Si hay filtro, establecer los parámetros con %palabra%
+               List<Paciente> pacientes = new ArrayList<>();
+              Connection con = null;
+              PreparedStatement pst = null;
+              ResultSet rs = null;
+
+        String sql = "SELECT * FROM pacientes";
+
         if (nombre != null && !nombre.trim().isEmpty()) {
-            String filtro = "%" + nombre + "%";
-            for (int i = 1; i <= 5; i++) {
-                pst.setString(i, filtro);
+            sql += " WHERE nombre_paciente LIKE ?"
+                 + " OR apellido_paciente LIKE ?"
+                 + " OR genero LIKE ?"
+                 + " OR direccion LIKE ?"
+                 + " OR telefono_paciente LIKE ?";
+        }
+
+        try {
+              con = conexion.getConexion();
+              pst = con.prepareStatement(sql);
+
+            // Si hay filtro, establecer los parámetros con %palabra%
+            if (nombre != null && !nombre.trim().isEmpty()) {
+                String filtro = "%" + nombre + "%";
+                for (int i = 1; i <= 5; i++) {
+                    pst.setString(i, filtro);
+                }
             }
-        }
-        
-        ResultSet rs = pst.executeQuery();
-        while (rs.next()) {
-            Paciente p = new Paciente();
-            p.setId(rs.getInt("id_paciente"));
-            p.setNombre(rs.getString("nombre_paciente"));
-            p.setApellido(rs.getString("apellido_paciente"));
-            p.setFechaNacimiento(rs.getString("fecha_nacimiento"));
-            p.setGenero(rs.getString("genero"));
-            p.setDireccion(rs.getString("direccion"));
-            p.setTelefono(rs.getString("telefono_paciente"));
-            p.setDetalles(rs.getString("detalles"));
-            pacientes.add(p);
-        }
 
-    } catch (SQLException e) {
-        System.out.println("Error en listarTodos: " + e.getMessage());
-    } catch (Exception ex) {
-        Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
+             rs = pst.executeQuery();
+            while (rs.next()) {
+                Paciente p = new Paciente();
+                p.setId(rs.getInt("id_paciente"));
+                p.setNombre(rs.getString("nombre_paciente"));
+                p.setApellido(rs.getString("apellido_paciente"));
+                p.setFechaNacimiento(rs.getString("fecha_nacimiento"));
+                p.setGenero(rs.getString("genero"));
+                p.setDireccion(rs.getString("direccion"));
+                p.setTelefono(rs.getString("telefono_paciente"));
+                p.setDetalles(rs.getString("detalles"));
+                pacientes.add(p);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error en listarTodos: " + e.getMessage());
+        } catch (Exception ex) {
+            Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }finally {
+                try { if (rs != null) rs.close(); } catch (SQLException e) {}
+                try { if (pst != null) pst.close(); } catch (SQLException e) {}
+                try { if (con != null) con.close(); } catch (SQLException e) {}
+        } 
+
+
+        return pacientes;
     }
-
-    return pacientes;
-}
 
     
     

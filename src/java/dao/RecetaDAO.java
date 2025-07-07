@@ -25,12 +25,17 @@ public class RecetaDAO implements IGenericoDAO<Receta>{
         this.conexion = conexion;
     }
    
+    
     @Override
     public void guardar(Receta re) {
+        
+        Connection con = null;
+        PreparedStatement pst = null;
+        
+        
        try{
             
-            Connection con = conexion.getConexion();
-            PreparedStatement pst = null;
+             con = conexion.getConexion();      
             
             pst = con.prepareStatement("INSERT INTO recetas(id_consulta,id_medicamento,cantidad) VALUES (?,?,?)");
             pst.setInt(1, re.getIdConsulta());
@@ -44,15 +49,24 @@ public class RecetaDAO implements IGenericoDAO<Receta>{
             e.printStackTrace();
         } catch (Exception ex) {
             Logger.getLogger(ConsultaDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+         }  
+       
+       
     }
 
     @Override
     public void actualizar(Receta re) {
+        
+        
+            Connection con = null;
+            PreparedStatement pst = null;
+            
         try{
             
-            Connection con = conexion.getConexion();
-            PreparedStatement pst = null;
+            con = conexion.getConexion();       
             
             pst = con.prepareStatement("update recetas set id_consulta=?,id_medicamento=?,cantidad=? where id_receta=?");
             pst.setInt(1, re.getIdConsulta());
@@ -67,15 +81,24 @@ public class RecetaDAO implements IGenericoDAO<Receta>{
             e.printStackTrace();
         } catch (Exception ex) {
             Logger.getLogger(ConsultaDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+         }  
+        
+        
     }
 
     @Override
     public void eliminar(int id) {
+        
+        
+            Connection con = null;
+            PreparedStatement pst = null;
+            
       try{
             
-            Connection con = conexion.getConexion();
-            PreparedStatement pst = null;
+             con = conexion.getConexion();
             
             pst = con.prepareStatement("delete from recetas where id_receta=?");
             pst.setInt(1,id);
@@ -87,7 +110,12 @@ public class RecetaDAO implements IGenericoDAO<Receta>{
             e.printStackTrace();
         } catch (Exception ex) {
             Logger.getLogger(ConsultaDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+         }  
+      
+      
     }
 
     @Override
@@ -95,12 +123,13 @@ public class RecetaDAO implements IGenericoDAO<Receta>{
        
         
          Receta r = new Receta();
+          Connection con = null;
+          PreparedStatement pst = null;
+          ResultSet rs = null;
         
          try{
             
-            Connection con = conexion.getConexion();
-            PreparedStatement pst = null;
-            ResultSet rs = null;
+             con = conexion.getConexion();
             
             pst = con.prepareStatement("select * from recetas where id_receta=?");
             pst.setString(1,String.valueOf(id));
@@ -118,7 +147,12 @@ public class RecetaDAO implements IGenericoDAO<Receta>{
             e.printStackTrace();
         } catch (Exception ex) {
             Logger.getLogger(MedicamentoDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+         } 
+         
         
      return r;
         
@@ -178,7 +212,11 @@ public class RecetaDAO implements IGenericoDAO<Receta>{
                   System.out.println("Error en listarTodosEspecialidades: " + e.getMessage());
               } catch (Exception ex) {
                   Logger.getLogger(EspecialidadDAO.class.getName()).log(Level.SEVERE, null, ex);
-              }
+              }finally {
+                try { if (rs != null) rs.close(); } catch (SQLException e) {}
+                try { if (pst != null) pst.close(); } catch (SQLException e) {}
+                try { if (con != null) con.close(); } catch (SQLException e) {}
+              } 
 
 
           return lista;

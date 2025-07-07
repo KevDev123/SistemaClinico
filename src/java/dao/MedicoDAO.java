@@ -36,11 +36,12 @@ public class MedicoDAO implements IGenericoDAO<Medico> {
     @Override
     public void guardar(Medico m) {
         
+            Connection con = null;
+            PreparedStatement pst = null;
+        
         try{
             
-            Connection con = conexion.getConexion();
-            PreparedStatement pst;
-            pst = null;
+            con = conexion.getConexion();
         
          pst = con.prepareStatement("INSERT INTO medicos(nombre_medico, apellido_medico, id_especialidad, telefono_medico) VALUES (?,?,?,?)");
         
@@ -56,17 +57,22 @@ public class MedicoDAO implements IGenericoDAO<Medico> {
             e.printStackTrace();
         } catch (Exception ex) {  
              Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
-         }  
+         }finally {     
+                try { if (pst != null) pst.close(); } catch (SQLException e) {}
+                try { if (con != null) con.close(); } catch (SQLException e) {}
+          }  
         
     }
 
     @Override
     public void actualizar(Medico m) {
         
-        try{           
-            Connection con = conexion.getConexion();
+            Connection con = null;
             PreparedStatement pst = null;
         
+        try{           
+             con = conexion.getConexion();
+     
          pst = con.prepareStatement("UPDATE medicos SET nombre_medico=?, apellido_medico=?, id_especialidad=?, telefono_medico=? where id_medico=?");
         
          pst.setString(1, m.getNombre());
@@ -82,37 +88,48 @@ public class MedicoDAO implements IGenericoDAO<Medico> {
             e.printStackTrace();
         } catch (Exception ex) {  
              Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
-         }  
+         }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+         }
         
         
     }
 
     @Override
     public void eliminar(int id) {
+        
+        Connection con = null;
+        PreparedStatement pst = null;
+            
          try {
              
-           Connection con = conexion.getConexion();
-            PreparedStatement pst;                 
+            con = conexion.getConexion();
+            
             pst = con.prepareStatement("delete from medicos where id_medico=?");
             pst.setString(1,String.valueOf(id));
             pst.executeUpdate();
              
          } catch (Exception ex) {
              Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
-         }
+         }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+        }
+         
     }
 
     @Override
     public Medico enviarDatosID(int id) {
         
         Medico m = new Medico();
+         Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
         
          try {
-             Connection con = conexion.getConexion();
-             PreparedStatement pst;
-             ResultSet rs;
-             
-             
+             con = conexion.getConexion();
+
              pst = con.prepareStatement("SELECT m.*,es.nombre_especialidad FROM medicos m INNER JOIN especialidades es ON es.id_especialidad = m.id_especialidad where m.id_medico=?");
              pst.setInt(1, id);
              rs = pst.executeQuery();
@@ -128,14 +145,23 @@ public class MedicoDAO implements IGenericoDAO<Medico> {
                      
          } catch (Exception ex) {
              Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
-         }
+         }finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+        } 
+         
+         
         System.out.println(m);
          return m;
+         
        
     }
 
         @Override
     public List<Medico> listarTodos(String nombre) {
+        
+        
         List<Medico> medicos = new ArrayList<>();
         Connection con = null;
         PreparedStatement pst = null;
@@ -181,9 +207,16 @@ public class MedicoDAO implements IGenericoDAO<Medico> {
             System.out.println("Error en listarTodos (médicos): " + e.getMessage());
         } catch (Exception ex) {
             Logger.getLogger(MedicoDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+        } 
+        
 
         return medicos;
+        
+        
     }
 
     
@@ -192,11 +225,13 @@ public class MedicoDAO implements IGenericoDAO<Medico> {
     public Map<Integer,String> obtenerEspecialidades() {
         
        Map<Integer,String> especialidades = new HashMap<Integer,String>();
+        Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
         
          try {
-             Connection con = conexion.getConexion();
-             PreparedStatement pst;
-             ResultSet rs;            
+              con = conexion.getConexion();
+                      
              pst = con.prepareStatement("SELECT id_especialidad, nombre_especialidad FROM especialidades ORDER BY nombre_especialidad");
              rs = pst.executeQuery();
       
@@ -208,9 +243,14 @@ public class MedicoDAO implements IGenericoDAO<Medico> {
                      
          } catch (Exception ex) {
              Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
-         }
+         }finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+        } 
         
          return especialidades;
+         
        
     }
     

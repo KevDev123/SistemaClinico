@@ -30,11 +30,14 @@ public class MedicamentoDAO implements IGenericoDAO<Medicamento>{
 
     @Override
     public void guardar(Medicamento me) {
+        
+        
+            Connection con = null;
+            PreparedStatement pst = null;
       
         try{
             
-            Connection con = conexion.getConexion();
-            PreparedStatement pst = null;
+             con = conexion.getConexion();
             
             pst = con.prepareStatement("INSERT INTO medicamentos(nombre_medicamento,via_transmision,fecha_vencimiento,cantidad_disponible) VALUES (?,?,?,?)");
             pst.setString(1, me.getNombre());
@@ -48,18 +51,25 @@ public class MedicamentoDAO implements IGenericoDAO<Medicamento>{
             e.printStackTrace();
         } catch (Exception ex) {
             Logger.getLogger(MedicamentoDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+         }
+        
         
         
     }
 
     @Override
     public void actualizar(Medicamento me) {
+        
+        
+            Connection con = null;
+            PreparedStatement pst = null;
        
          try{
             
-            Connection con = conexion.getConexion();
-            PreparedStatement pst = null;
+            con = conexion.getConexion();
             
             pst = con.prepareStatement("update medicamentos set nombre_medicamento=?,via_transmision=?,fecha_vencimiento=?,cantidad_disponible=? where id_medicamento=?");
             pst.setString(1, me.getNombre());
@@ -74,17 +84,24 @@ public class MedicamentoDAO implements IGenericoDAO<Medicamento>{
             e.printStackTrace();
         } catch (Exception ex) {
             Logger.getLogger(MedicamentoDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
         }
+         
         
     }
 
     @Override
     public void eliminar(int id) {
         
+        
+            Connection con = null;
+            PreparedStatement pst = null;
+        
        try{
             
-            Connection con = conexion.getConexion();
-            PreparedStatement pst = null;
+             con = conexion.getConexion();
             
             pst = con.prepareStatement("delete from medicamentos where id_medicamento=?");
             pst.setString(1,String.valueOf(id));
@@ -95,7 +112,11 @@ public class MedicamentoDAO implements IGenericoDAO<Medicamento>{
             e.printStackTrace();
         } catch (Exception ex) {
             Logger.getLogger(MedicamentoDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+         }
+       
        
     }
 
@@ -103,13 +124,15 @@ public class MedicamentoDAO implements IGenericoDAO<Medicamento>{
     public Medicamento enviarDatosID(int id) {
         
         Medicamento medicamento = new Medicamento();
+        Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
         
         
          try{
             
-            Connection con = conexion.getConexion();
-            PreparedStatement pst = null;
-            ResultSet rs = null;
+             con = conexion.getConexion();
+
             
             pst = con.prepareStatement("select * from medicamentos where id_medicamento=?");
             pst.setString(1,String.valueOf(id));
@@ -128,9 +151,15 @@ public class MedicamentoDAO implements IGenericoDAO<Medicamento>{
             e.printStackTrace();
         } catch (Exception ex) {
             Logger.getLogger(MedicamentoDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+        } 
+         
         
          return medicamento;
+         
         
     }
 
@@ -186,9 +215,15 @@ public class MedicamentoDAO implements IGenericoDAO<Medicamento>{
             e.printStackTrace();
         } catch (Exception ex) {
             Logger.getLogger(MedicamentoDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+        } 
         
          return medicamento;
+         
+         
         
     }
  

@@ -33,6 +33,8 @@ public class EspecialidadDAO implements IGenericoDAO<Especialidad>{
 
     @Override
     public void guardar(Especialidad es) {
+        
+        
        
         Connection con = null;
         PreparedStatement pst = null;
@@ -49,12 +51,19 @@ public class EspecialidadDAO implements IGenericoDAO<Especialidad>{
             
         }catch (Exception ex) {
             Logger.getLogger(EspecialidadDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+         }
           
+        
+        
     }
 
     @Override
     public void actualizar(Especialidad es) {
+        
+        
         
         Connection con = null;
         PreparedStatement pst = null;
@@ -72,12 +81,18 @@ public class EspecialidadDAO implements IGenericoDAO<Especialidad>{
             
         }catch (Exception ex) {
             Logger.getLogger(EspecialidadDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
         }
+        
+        
    
     }
 
     @Override
     public void eliminar(int id) {
+        
       
         Connection con = null;
         PreparedStatement pst = null;
@@ -94,7 +109,11 @@ public class EspecialidadDAO implements IGenericoDAO<Especialidad>{
             
         }catch (Exception ex) {
             Logger.getLogger(EspecialidadDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {     
+        try { if (pst != null) pst.close(); } catch (SQLException e) {}
+        try { if (con != null) con.close(); } catch (SQLException e) {}
+         }
+        
         
         
     }
@@ -102,14 +121,15 @@ public class EspecialidadDAO implements IGenericoDAO<Especialidad>{
     @Override
     public Especialidad enviarDatosID(int id) {
         
-        Especialidad es = new Especialidad();
+        
+             Especialidad es = new Especialidad();
+            Connection con = null;
+            PreparedStatement pst = null;
+            ResultSet rs = null;
         
          try {
-             Connection con = conexion.getConexion();
-             PreparedStatement pst;
-             ResultSet rs;
-             
-             
+              con = conexion.getConexion();
+         
              pst = con.prepareStatement("SELECT * FROM especialidades where id_especialidad =?");
              pst.setInt(1,id);
              rs = pst.executeQuery();
@@ -121,14 +141,21 @@ public class EspecialidadDAO implements IGenericoDAO<Especialidad>{
                      
          } catch (Exception ex) {
              Logger.getLogger(PacienteDAO.class.getName()).log(Level.SEVERE, null, ex);
-         }
+         }finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+         } 
+         
          return es;    
+         
     }
 
     
     
     @Override
     public List<Especialidad> listarTodos(String nombre) {
+        
         
         List<Especialidad> especialidades = new ArrayList<>();
         Connection con = null;
@@ -164,9 +191,15 @@ public class EspecialidadDAO implements IGenericoDAO<Especialidad>{
             System.out.println("Error en listarTodosEspecialidades: " + e.getMessage());
         } catch (Exception ex) {
             Logger.getLogger(EspecialidadDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+         } 
 
         return especialidades;
+        
+        
     }
 
  

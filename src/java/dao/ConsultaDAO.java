@@ -36,11 +36,14 @@ public class ConsultaDAO implements IActualizableDAO<Consulta>,IEliminableDAO<Co
     
     @Override
     public void guardar(Consulta co) {
+        
+            Connection con = null;
+            PreparedStatement pst = null;
+            
       
         try{
             
-            Connection con = conexion.getConexion();
-            PreparedStatement pst = null;
+            con = conexion.getConexion();
             
             pst = con.prepareStatement("INSERT INTO consultas(id_paciente,id_medico,fecha_consulta,observaciones) VALUES (?,?,?,?)");
             pst.setInt(1, co.getIdPaciente());
@@ -54,17 +57,23 @@ public class ConsultaDAO implements IActualizableDAO<Consulta>,IEliminableDAO<Co
             e.printStackTrace();
         } catch (Exception ex) {
             Logger.getLogger(ConsultaDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {     
+        try { if (pst != null) pst.close(); } catch (SQLException e) {}
+        try { if (con != null) con.close(); } catch (SQLException e) {}
+    }
         
     }
 
     @Override
     public void actualizar(Consulta co) {
         
+            Connection con = null;
+            PreparedStatement pst = null;
+            
+        
         try{
             
-            Connection con = conexion.getConexion();
-            PreparedStatement pst = null;
+            con = conexion.getConexion();
             
             pst = con.prepareStatement("update consultas set id_paciente=?,id_medico=?,fecha_consulta=?,observaciones=? where id_consulta=?");
             pst.setInt(1, co.getIdPaciente());
@@ -79,17 +88,24 @@ public class ConsultaDAO implements IActualizableDAO<Consulta>,IEliminableDAO<Co
             e.printStackTrace();
         } catch (Exception ex) {
             Logger.getLogger(ConsultaDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
         }
         
     }
 
     @Override
     public void eliminar(int id) {
+        
+            Connection con = null;
+            PreparedStatement pst = null;
+            
+        
       
         try{
             
-            Connection con = conexion.getConexion();
-            PreparedStatement pst = null;
+            con = conexion.getConexion();
             
             pst = con.prepareStatement("delete from consultas where id_consulta=?");
             pst.setString(1,String.valueOf(id));
@@ -100,6 +116,9 @@ public class ConsultaDAO implements IActualizableDAO<Consulta>,IEliminableDAO<Co
             e.printStackTrace();
         } catch (Exception ex) {
             Logger.getLogger(ConsultaDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }finally {     
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
         }
         
         
@@ -109,6 +128,10 @@ public class ConsultaDAO implements IActualizableDAO<Consulta>,IEliminableDAO<Co
         @Override
         public Consulta enviarDatosID(int id) {
             Consulta consulta = new Consulta();
+            Connection con = null;
+            PreparedStatement pst = null;
+            ResultSet rs = null;
+            
 
             String sql = "SELECT c.id_consulta, c.id_paciente, "
                        + "CONCAT(p.nombre_paciente, ' ', p.apellido_paciente) AS paciente, "
@@ -117,9 +140,6 @@ public class ConsultaDAO implements IActualizableDAO<Consulta>,IEliminableDAO<Co
                        + "INNER JOIN pacientes p ON c.id_paciente = p.id_paciente "
                        + "WHERE c.id_consulta = ?";
 
-            Connection con = null;
-            PreparedStatement pst = null;
-            ResultSet rs = null;
 
             try {
                 con = conexion.getConexion();
@@ -142,6 +162,10 @@ public class ConsultaDAO implements IActualizableDAO<Consulta>,IEliminableDAO<Co
                 e.printStackTrace();
             } catch (Exception ex) {
                 Logger.getLogger(ConsultaDAO.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
             } 
 
             return consulta;
@@ -192,7 +216,11 @@ public class ConsultaDAO implements IActualizableDAO<Consulta>,IEliminableDAO<Co
             e.printStackTrace();
         } catch (Exception ex) {
             Logger.getLogger(ConsultaDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+              } 
         
          return consulta;
         
@@ -201,14 +229,15 @@ public class ConsultaDAO implements IActualizableDAO<Consulta>,IEliminableDAO<Co
     
     
     public List<MedicoSelect> obtenerMedicosParaSelect()  {
-    List<MedicoSelect> lista = new ArrayList<>();
+        
+         List<MedicoSelect> lista = new ArrayList<>();
+         Connection con = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
     
     String sql = "SELECT id_medico, CONCAT(nombre_medico, ' ', apellido_medico) AS nombre_completo FROM medicos ORDER BY nombre_medico";
     
-        Connection con = null;
-        PreparedStatement pst = null;
-        ResultSet rs = null;
-
+        
     try{
          con = conexion.getConexion();
           pst = con.prepareStatement(sql);
@@ -226,19 +255,25 @@ public class ConsultaDAO implements IActualizableDAO<Consulta>,IEliminableDAO<Co
         e.printStackTrace();
     }catch (Exception ex) {
             Logger.getLogger(ConsultaDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+              } 
 
     return lista;
 }
     
     
     public int[] obtenerIdsPacienteYMedicoPorIdConsulta(int idConsulta){
-    int[] ids = new int[2];
-
-    String sql = "SELECT id_paciente, id_medico FROM consultas WHERE id_consulta = ?";
+        
+            int[] ids = new int[2];
             Connection con = null;
             PreparedStatement pst = null;
             ResultSet rs = null;
+
+    String sql = "SELECT id_paciente, id_medico FROM consultas WHERE id_consulta = ?";
+            
 
             try {
                 con = conexion.getConexion();
@@ -257,7 +292,11 @@ public class ConsultaDAO implements IActualizableDAO<Consulta>,IEliminableDAO<Co
                 e.printStackTrace();
             } catch (Exception ex) {
                 Logger.getLogger(ConsultaDAO.class.getName()).log(Level.SEVERE, null, ex);
-            } 
+            }finally {
+            try { if (rs != null) rs.close(); } catch (SQLException e) {}
+            try { if (pst != null) pst.close(); } catch (SQLException e) {}
+            try { if (con != null) con.close(); } catch (SQLException e) {}
+              } 
     
     return null; // si no encuentra nada
 }
