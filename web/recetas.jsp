@@ -1,4 +1,10 @@
 
+<%@page import="model.Receta"%>
+<%@page import="java.util.List"%>
+<%@page import="java.util.List"%>
+<%@page import="dao.RecetaDAO"%>
+<%@page import="model.ConexionBD"%>
+<%@page import="interfaces.IConexion"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -43,42 +49,15 @@
                         </thead>
                         <tbody>
                             <%
-                                Connection con = null;
-                                Statement st = null;
-                                ResultSet rs = null;
+                                
                                 String buscarTerm = request.getParameter("buscar");
-                                String buscarPaciente = request.getParameter("idPaciente");
+                                IConexion con = new ConexionBD();
+                                RecetaDAO receta = new RecetaDAO(con);
+                                List<Receta> lista = receta.listarTodos(buscarTerm);
 
-                                try {
-                                    Class.forName("com.mysql.jdbc.Driver");
-                                    con = DriverManager.getConnection("jdbc:mysql://localhost/clinica?useSSL=false", "root", "");
-                                    st = con.createStatement();
-                                    String sql = "SELECT r.id_receta, r.id_consulta, "
-                                            + "CONCAT(p.nombre_paciente, ' ', p.apellido_paciente) AS nombre_completo_paciente, "
-                                            + "CONCAT(m.nombre_medico, ' ', m.apellido_medico) AS nombre_completo_medico, "
-                                            + "med.nombre_medicamento, r.cantidad "
-                                            + "FROM recetas r "
-                                            + "INNER JOIN consultas c ON r.id_consulta = c.id_consulta "
-                                            + "INNER JOIN pacientes p ON c.id_paciente = p.id_paciente "
-                                            + "INNER JOIN medicos m ON c.id_medico = m.id_medico "
-                                            + "INNER JOIN medicamentos med ON r.id_medicamento = med.id_medicamento";
+                               
 
-                                    if (buscarTerm != null && !buscarTerm.isEmpty()) {
-                                        sql += " WHERE (r.id_receta LIKE '%" + buscarTerm + "%' "
-                                                + "OR r.id_consulta LIKE '%" + buscarTerm + "%' "
-                                                + "OR p.nombre_paciente LIKE '%" + buscarTerm + "%' "
-                                                + "OR p.apellido_paciente LIKE '%" + buscarTerm + "%' "
-                                                + "OR m.nombre_medico LIKE '%" + buscarTerm + "%' "
-                                                + "OR m.apellido_medico LIKE '%" + buscarTerm + "%' "
-                                                + "OR med.nombre_medicamento LIKE '%" + buscarTerm + "%' "
-                                                + "OR r.cantidad LIKE '%" + buscarTerm + "%')";
-                                    } else if (buscarPaciente != null) {
-                                        sql += " WHERE c.id_paciente = " + buscarPaciente;
-                                    }
-
-                                    rs = st.executeQuery(sql);
-
-                                    if (!rs.isBeforeFirst() && buscarTerm != null && !buscarTerm.isEmpty()) {
+                                    if (lista.isEmpty()) {
                             %>
                             <tr>
                                 <td colspan="7" class="text-center text-muted py-4">
@@ -89,17 +68,17 @@
                             </tr>
                             <%
                             } else {
-                                while (rs.next()) {
+                                for(Receta re : lista) {
                             %>
                             <tr>
-                                <td><%= rs.getInt("id_receta")%></td>
-                                <td><%= rs.getInt("id_consulta")%></td>
-                                <td><%= rs.getString("nombre_completo_paciente")%></td>
-                                <td><%= rs.getString("nombre_completo_medico")%></td>
-                                <td><%= rs.getString("nombre_medicamento")%></td>
-                                <td><%= rs.getInt("cantidad")%></td>
+                                <td><%= re.getId()%></td>
+                                <td><%= re.getIdConsulta()%></td>
+                                <td><%= re.getNombrePaciente()%></td>
+                                <td><%= re.getNombreMedico()%></td>
+                                <td><%= re.getNombreMedicamento()%></td>
+                                <td><%= re.getCantidad()%></td>
                                 <td class="action-buttons">
-                                    <a href="recetasCRUD.jsp?accion=editar&id=<%= rs.getInt("id_receta")%>&idConsulta=<%= rs.getInt("id_consulta")%>" 
+                                    <a href="recetasCRUD.jsp?accion=editar&id=<%= re.getId()%>&idConsulta=<%= re.getIdConsulta()%>" 
                                        class="btn btn-sm"
                                        style="color: green;"
                                        data-bs-toggle="tooltip" 
@@ -107,7 +86,7 @@
                                        title="Editar Receta">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <a href="recetasEliminar.jsp?accion=eliminar&id=<%= rs.getInt("id_receta")%>" 
+                                    <a href="recetasEliminar.jsp?accion=eliminar&id=<%= re.getId()%>" 
                                        class="btn btn-sm"
                                        style="color: red;"
                                        data-bs-toggle="tooltip" 
@@ -120,20 +99,7 @@
                             </tr>
                             <%
                                         }
-                                    }
-                                } catch (Exception e) {
-                                    out.println("<tr><td colspan='7' class='text-danger'>Error al cargar recetas: " + e.getMessage() + "</td></tr>");
-                                } finally {
-                                    if (rs != null) {
-                                        rs.close();
-                                    }
-                                    if (st != null) {
-                                        st.close();
-                                    }
-                                    if (con != null) {
-                                        con.close();
-                                    }
-                                }
+                                    }                           
                             %>
                         </tbody>
                     </table>

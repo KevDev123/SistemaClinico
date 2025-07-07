@@ -232,39 +232,35 @@ public class ConsultaDAO implements IActualizableDAO<Consulta>,IEliminableDAO<Co
 }
     
     
-    public String obtenerNombrePacientePorId(int idPaciente) {
-    String nombreCompleto = "Paciente no encontrado";
+    public int[] obtenerIdsPacienteYMedicoPorIdConsulta(int idConsulta){
+    int[] ids = new int[2];
 
-    String sql = "SELECT CONCAT(nombre_paciente, ' ', apellido_paciente) AS nombre_completo " +
-                 "FROM pacientes WHERE id_paciente = ?";
+    String sql = "SELECT id_paciente, id_medico FROM consultas WHERE id_consulta = ?";
+            Connection con = null;
+            PreparedStatement pst = null;
+            ResultSet rs = null;
 
-    Connection con = null;
-    PreparedStatement pst = null;
-    ResultSet rs = null;
+            try {
+                con = conexion.getConexion();
+                pst = con.prepareStatement(sql);
+               pst.setInt(1, idConsulta);
+                rs = pst.executeQuery();
 
-    try {
-        con = conexion.getConexion();
-        pst = con.prepareStatement(sql);
-        pst.setInt(1, idPaciente);
-        rs = pst.executeQuery();
+                if (rs.next()) {
+                    ids[0] = rs.getInt("id_paciente");
+                    ids[1] = rs.getInt("id_medico");
+                    return ids;
+                }
 
-        if (rs.next()) {
-            nombreCompleto = rs.getString("nombre_completo");
-        }
-    } catch (SQLException e) {
-        System.out.println("Error al obtener el nombre del paciente.");
-        e.printStackTrace();
-    } catch (Exception ex) {
-        Logger.getLogger(ConsultaDAO.class.getName()).log(Level.SEVERE, null, ex);
-    } finally {
-        try { if (rs != null) rs.close(); } catch (SQLException e) {}
-        try { if (pst != null) pst.close(); } catch (SQLException e) {}
-        try { if (con != null) con.close(); } catch (SQLException e) {}
-    }
-
-    return nombreCompleto;
+            } catch (SQLException e) {
+                System.out.println("Error al obtener datos de la consulta por ID.");
+                e.printStackTrace();
+            } catch (Exception ex) {
+                Logger.getLogger(ConsultaDAO.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+    
+    return null; // si no encuentra nada
 }
 
-    
-    
+ 
 }

@@ -1,3 +1,4 @@
+<%@page import="dao.UtilDAO"%>
 <%@page import="model.Consulta"%>
 <%@page import="dao.ConsultaDAO"%>
 <%@page import="model.ConexionBD"%>
@@ -13,6 +14,7 @@
 
     IConexion cons = new ConexionBD();
     ConsultaDAO co = new ConsultaDAO(cons);
+    UtilDAO util = new UtilDAO(cons);
     List<MedicoSelect> medicos = co.obtenerMedicosParaSelect();
     
      // Variables para datos del paciente y médico
@@ -31,7 +33,7 @@
     if (request.getParameter("id_paciente") != null && !request.getParameter("id_paciente").isEmpty()) {
         try {
             idPaciente = Integer.parseInt(request.getParameter("id_paciente"));
-            nombrePacienteMod = co.obtenerNombrePacientePorId(idPaciente);
+            nombrePacienteMod = util.obtenerNombrePacientePorId(idPaciente);
         } catch (NumberFormatException e) {
             out.println("<script>alert('ID de paciente no válido');</script>");
         }
